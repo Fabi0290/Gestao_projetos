@@ -11,6 +11,10 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 git branch: 'main', url: 'https://github.com/Fabi0290/Gestao_projetos.git'
+
+                // Debug - Verificar os arquivos e diretórios no workspace
+                sh 'ls -l'
+                sh 'cat Dockerfile'
             }
         }
 
@@ -18,17 +22,20 @@ pipeline {
             steps {
                 script {
                     try {
+                        // Autenticar e enviar a imagem para o Docker Hub
                         docker.withRegistry(DOCKER_REGISTRY, DOCKER_CREDENTIALS_ID) {
-                            // Construir a imagem Docker
                             def customImage = docker.build(IMAGE_NAME)
-                            echo "Imagem construída: ${IMAGE_NAME}"
-                            
-                            // Enviar a imagem para o Docker Hub
+
+                            // Debug - Listar imagens locais
+                            sh 'docker images'
+
+                            // Push a imagem ao Docker Hub
                             customImage.push()
-                            echo "Imagem enviada ao Docker Hub!"
+
+                            echo "Imagem enviada ao Docker Hub: ${IMAGE_NAME}"
                         }
                     } catch (Exception e) {
-                        error "Erro ao construir ou enviar a imagem: ${e.getMessage()}"
+                        error "Erro ao construir ou enviar a imagem Docker: ${e.getMessage()}"
                     }
                 }
             }
