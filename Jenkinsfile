@@ -1,20 +1,34 @@
 pipeline {
     agent any
+
+    environment {
+        DOCKER_REGISTRY = 'https://registry.hub.docker.com/'
+        DOCKER_CREDENTIALS_ID = 'fabiorocha-dockerhub'
+        IMAGE_NAME = 'fabiorocha-dockerhub/gestao_projetos:latest'
+    }
+
     stages {
         stage('Clone Repository') {
             steps {
-                // Clonar o repositório onde está o Dockerfile e o código da aplicação
                 git branch: 'main', url: 'https://github.com/Fabi0290/Gestao_projetos.git'
             }
         }
+
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Autenticar no Docker Hub e construir a imagem
-                    docker.withRegistry('https://registry.hub.docker.com/', 'fabiorocha-dockerhub') {
-                        // Substitua o nome da imagem e tag conforme necessário
-                        def customImage = docker.build("fabiorocha-dockerhub/gestao_projetos:latest")
-                        customImage.push()
+                    try {
+                        docker.withRegistry(DOCKER_REGISTRY, DOCKER_CREDENTIALS_ID) {
+                            // Construir a imagem Docker
+                            def customImage = docker.build(IMAGE_NAME)
+                            echo "Imagem construída: ${IMAGE_NAME}"
+                            
+                            // Enviar a imagem para o Docker Hub
+                            customImage.push()
+                            echo "Imagem enviada ao Docker Hub!"
+                        }
+                    } catch (Exception e) {
+                        error "Erro ao construir ou enviar a imagem: ${e.getMessage()}"
                     }
                 }
             }
