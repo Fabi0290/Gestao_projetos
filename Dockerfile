@@ -1,14 +1,11 @@
-# Use uma imagem base mínima e estável
+# Usar uma imagem base simples
 FROM alpine:latest
 
-# Defina o diretório de trabalho
+# Diretório de trabalho
 WORKDIR /app
 
-# Copie todos os arquivos do diretório atual para o container
-COPY . .
+# Copiar arquivos do projeto para o container
+COPY . /app
 
-# Exponha uma porta (opcional, dependendo da aplicação)
-EXPOSE 8080
-
-# Comando padrão para executar ao iniciar o container
-CMD ["echo", "Container simples criado com sucesso!"]
+# Comando padrão para iniciar o container (apenas para testes simples)
+CMD ["echo", "Container executado com sucesso!"]
